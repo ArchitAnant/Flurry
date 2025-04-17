@@ -1,0 +1,13 @@
+Headline,Summary
+Okay,"I will process the provided news items, remove duplicates/similar entries (interpret based on content, assuming URLs point to news related to the visible text), generate headlines and summaries, and provide the output in CSV format."
+Headline,Summary
+SEBI Review,"""SEBI Chairman Tuhin Kanta Pandey announces a review of existing regulations, aiming to remove outdated and unnecessary ones."""
+Dawoodi Modi,"""Dawoodi Bohra delegation meets PM Modi, expressing support for the Waqf Amendment Act, praising its inclusivity."""
+Stalin Cabinet,"""Tamil Nadu CM MK Stalin convenes a Cabinet meeting at the State Secretariat in Chennai to discuss key policy matters."""
+Waqf Act Protest,"""BJP MP Agrawal criticizes those protesting the Waqf Amendment Act, accusing them of Muslim appeasement and division."""
+Islamabad Shielding,"""MEA states Islamabad continues to shield perpetrators of 26/11, Rana's extradition reminds Pakistan needs to act."""
+BJP Rally,"""Calcutta HC permits Bharatiya Janata Yuva Morcha to hold 'Save Bengali Hindus' rally, starting from Netaji's home."""
+Tariff Talks,"""MEA confirms 'all bilateral issues' will be discussed, including tariffs, during JD Vance's upcoming visit."""
+*   News items 1,"2, 3, 6, 9, 10, 12, 14, 15, 16, and 18 were ignored as they contain just a link with no further information."
+*   News item 8 was discarded,as it is a follow up from item 7 (Tamil Nadu CM)
+*   **Summaries:** Aimed for brevity and clarity,while capturing the essence of the political development.
