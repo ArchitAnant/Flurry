@@ -1,34 +1,77 @@
-# pip install python-dotenv
-from dotenv import load_dotenv
 import os
+import time
+import math
+import tiktoken
+from pydub import AudioSegment
+from dotenv import load_dotenv
+from groq import Groq
 
 
 load_dotenv()
-# use a .env file to save your API keys and use like
-# api_key = os.environ["GROQ_API_KEY"]
+API_KEY = os.environ["GROQ_API_KEY"]
 
 
-def synthesize_audio(script : str,voice_code : int) -> str:
-    """
-    TODO
-    parameter : 
-    script (str) : entire script to synthesize
-    voice_code (int) : [0,1,2,3,4]
+VOICE_MAP = {
+    0: "Quinn-PlayAI",
+    1: "Nia-PlayAI",
+    2: "Chip-PlayAI",
+    3: "Arista-PlayAI",
+    4: "Angelo-PlayAI"
+}
 
-    Use GROQ apis to synthesize audio for the given script.
-    use these voices according to voice code:
-    0 : Quinn
-    1 : Nia
-    2 : Chip
-    3 : Arista
-    4 : Angelo
+OUTPUT_DIR = os.path.join("utils", "tmp")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    Find the actual api paramter from the docs.
-    save the wav file in a tmp folder inside utils folder.
 
-    TIP : keep the len(script) < 20-30 for testing or you will exhaust you api credits.
+ENCODING = tiktoken.get_encoding("cl100k_base")
+MAX_TOKENS_PER_CHUNK = 600
 
-    return:
-    str : File path of the saved synthesis
-    """
-    pass
+
+def synthesize_audio(script: str, voice_code: int) -> str:
+    
+
+    if voice_code not in VOICE_MAP:
+        raise ValueError("Invalid voice code. Use an integer from 0 to 4.")
+
+    voice = VOICE_MAP[voice_code]
+    client = Groq(api_key=API_KEY)
+
+    
+    tokens = ENCODING.encode(script)
+    token_chunks = [tokens[i:i + MAX_TOKENS_PER_CHUNK] for i in range(0, len(tokens), MAX_TOKENS_PER_CHUNK)]
+    text_chunks = [ENCODING.decode(chunk) for chunk in token_chunks]
+
+    file_paths = []
+
+    for i, chunk_text in enumerate(text_chunks):
+        print(f"🎤 Synthesizing chunk {i+1}/{len(text_chunks)}...")
+        try:
+            response = client.audio.speech.create(
+                model="playai-tts",
+                voice=voice,
+                input=chunk_text,
+                response_format="wav"
+            )
+            chunk_path = os.path.join(OUTPUT_DIR, f"chunk_{i+1}.wav")
+            response.write_to_file(chunk_path)
+            file_paths.append(chunk_path)
+        except Exception as e:
+            print(f"❌ Error generating audio for chunk {i+1}: {e}")
+            break
+
+        time.sleep(1.5) 
+
+    if not file_paths:
+        raise RuntimeError("No audio chunks were generated.")
+
+    
+    print("🔗 Merging chunks...")
+    final_audio = AudioSegment.empty()
+    for file in file_paths:
+        final_audio += AudioSegment.from_wav(file)
+
+    final_output = os.path.join(OUTPUT_DIR, "speech_final.wav")
+    final_audio.export(final_output, format="wav")
+
+    print(f"✅ Speech synthesis complete: {final_output}")
+    return final_output
