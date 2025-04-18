@@ -7,7 +7,7 @@ load_dotenv()
 # use a .env file to save your API keys and use like
 # api_key = os.environ["GROQ_API_KEY"]
 
-def generate_speech(topic : str) -> dict:
+def generate_script(topic : str) -> dict:
     """
     TODO
     parameter:
