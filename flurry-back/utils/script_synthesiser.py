@@ -7,7 +7,7 @@ import time
 from serpapi import GoogleSearch
 from groq import Groq
 
-load_dotenv()
+load_dotenv(dotenv_path=r"C:\Users\jitro\OneDrive\Desktop\Hackathon\Flurry\flurry-back\utils\.env.local")
 
 def get_related_trending_topics(topic):
     serpapi_key = os.getenv("SERPAPI_API_KEY")
@@ -186,6 +186,7 @@ THE SCRIPT SHOULD BE 800-1500 WORDS.
             "long_script": f"Error generating long script for {main_topic}: {str(e)}"
         }
 
+
 def generate_script(topic: str) -> dict:
     """
     Generate short and long scripts for a trending topic.
@@ -196,8 +197,9 @@ def generate_script(topic: str) -> dict:
     Returns:
     A dict as
     {
+        "trending_topics": list
         "short_script": str,
-        "long_script": str
+        "long_script": str,
     }
     """
     # Step 1: Get related trending topics
@@ -211,15 +213,13 @@ def generate_script(topic: str) -> dict:
     # Step 3: Generate scripts using an LLM
     scripts = generate_scripts_with_llm(topic, articles)
     
-    return scripts
+    return {
+        "trending_topics": trending_topics,
+        **scripts
+    }
 
 # Example usage
-if __name__ == "__main__":
-    topic = "AI"
-    scripts = generate_script(topic)
-    
-    print("\n=== SHORT SCRIPT ===\n")
-    print(scripts["short_script"])
-    
-    print("\n=== LONG SCRIPT ===\n")
-    print(scripts["long_script"])
+# if __name__ == "__main__":
+#     topic = "AI"
+#     scripts = generate_script(topic)
+#     print(scripts)
