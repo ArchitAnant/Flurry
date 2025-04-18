@@ -23,7 +23,7 @@ function HeroSection() {
         <img src={shazam} alt="Logo" className="w-[250px]" />
         <div className='absolute top-1/2 left-[250px] text-4xl text-left'>
           <h1 className='text-darkGray text-4xl'>OUR</h1>
-          <h1 className='text-black font-black mt-2 pb-4 w-[140px]  text-5xl bg-bottom bg-no-repeat bg-[url(ui/hero/svgs/hero-idea-high.svg)] bg-contain'>IDEA.</h1>
+          <h1 className='text-black font-black mt-2 pb-4 w-[140px]  text-5xl bg-no-repeat bg-[url(ui/hero/svgs/hero-idea-high.svg)] bg-contain'>IDEA.</h1>
         </div>
       </div>
     </div>
