@@ -1,2 +1,4 @@
 .DS_Store
 .vscode
+flurry-back/__pycache__/
+flurry-back/utils/__pycache__/
