@@ -2,8 +2,15 @@ import './App.css';
 import HeroSection from './ui/hero/Hero';
 import TrendingSection from "./ui/trending/Trending"
 import ScriptSection from './ui/script/Scripts';
+import { useEffect } from "react";
+import { getTrendingList } from './ui/ViewModel';
+
 
 function App() {
+  useEffect(() => {
+    getTrendingList(); // Load the trending data once on mount
+  }, []);
+
   return (
     <div className="App bg-white flex flex-col min-h-screen ">
       <HeroSection />
@@ -17,7 +24,7 @@ function App() {
 function Footer(){
   return(
       <footer
-      className="w-full py-4 flex flex-row justify-end items-end mt-auto"
+      className="w-full py-4 flex flex-row justify-end items-end mt-auto smooth-scroll"
       >
         <div className='flex flex-col justify-start items-start ps-10 w-full '>
           <p className="text-[14px] text-darkGray">Flurry</p>

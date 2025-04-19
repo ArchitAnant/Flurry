@@ -1,9 +1,8 @@
 import React from "react";
 import gsap from 'gsap';
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState,useMemo } from "react";
 import underline from './svgs/trending_underline.svg'
-import trendsData from './trends.json';
-import { useTrendTopicViewModel } from '../ViewModel';
+import { useTrendTopicViewModel,useTrendingValueList } from '../ViewModel';
 
 
 
@@ -45,17 +44,27 @@ function TrendBadge({trend}){
 }
 
 function TrendingSection() {
-  const categories = Object.keys(Object.assign({}, ...trendsData)); 
+  const { trendingList } = useTrendingValueList();
+  const categories = useMemo(() => {
+    return trendingList ? Object.keys(trendingList) : [];
+  }, [trendingList]);
 
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
-  
+  // State to store selected category
+  const [selectedCategory, setSelectedCategory] = useState('');
 
+  // Set default category when list loads
+  useEffect(() => {
+    if (categories.length > 0 && !selectedCategory) {
+      setSelectedCategory(categories[0]);
+    }
+  }, [categories, selectedCategory]);
+
+  // Helper function to get trends for a category
   const getTrendsForCategory = (category) => {
-    const trendObj = trendsData.find(obj => obj[category]);
-    return trendObj ? trendObj[category] : [];
-
+    return trendingList && trendingList[category] ? trendingList[category] : [];
   };
-  const trends = getTrendsForCategory(selectedCategory);
+  
+  
 
     return(
         <div className="flex flex-col justify-center items-center min-w-screen">
@@ -74,7 +83,11 @@ function TrendingSection() {
         ))}
       </div>
       <div className="w-full flex flex-wrap justify-center gap-2 px-4 mt-10">
-        <TrendingIdeas trends={trends}/>
+        {trendingList === null ? (
+          <p className="text-gray-500 text-sm italic">Loading trends...</p>
+        ) : (
+          <TrendingIdeas trends={getTrendsForCategory(selectedCategory)} />
+        )}
       </div>
       </div>
     );
