@@ -4,6 +4,8 @@ import re
 from bs4 import BeautifulSoup
 from serpapi import GoogleSearch
 import google.generativeai as genai
+from dotenv import load_dotenv
+load_dotenv()
 
 def get_news_links(topic):
     params = {
