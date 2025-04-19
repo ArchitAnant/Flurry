@@ -2,7 +2,6 @@ import './App.css';
 import HeroSection from './ui/hero/Hero';
 import TrendingSection from "./ui/trending/Trending"
 import ScriptSection from './ui/script/Scripts';
-import { motion } from "framer-motion";
 
 function App() {
   return (
