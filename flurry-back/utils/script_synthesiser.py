@@ -1,225 +1,109 @@
-from dotenv import load_dotenv
-import os
 import requests
+from bs4 import BeautifulSoup
+import os
 import json
-from datetime import datetime, timedelta
-import time
-from serpapi import GoogleSearch
-from groq import Groq
+import re
+from dotenv import load_dotenv
+load_dotenv()
 
-load_dotenv(dotenv_path=r"C:\Users\jitro\OneDrive\Desktop\Hackathon\Flurry\flurry-back\utils\.env.local")
 
-def get_related_trending_topics(topic):
-    serpapi_key = os.getenv("SERPAPI_API_KEY")
-
+def get_news_links(topic):
+    
     params = {
-        "engine": "google_trends",
+        "engine": "google_news",
+        "gl": "us",
+        "hl": "en",
         "q": topic,
-        "data_type": "RELATED_TOPICS",
-        "api_key": serpapi_key
+        "api_key": os.getenv("SERPAPI_API_KEY"),
     }
-
-    search = GoogleSearch(params)
-    results = search.get_dict()
-
-    trending_topics = []
-
-    if "related_topics" in results and "rising" in results["related_topics"]:
-        for item in results["related_topics"]["rising"]:
-            if "topic" in item and "title" in item["topic"]:
-                trending_topics.append(item["topic"]["title"])
-
-    return trending_topics[:5]
-
-def fetch_news_articles(topics):
-    """
-    Fetch recent news articles for the given topics using GNews API.
     
-    Args:
-        topics (list): List of topics to fetch news for
-        
-    Returns:
-        list: List of news article content and metadata
-    """
-    gnews_api_key = os.environ["GNEWS_API_KEY"]
-    articles = []
-    
-    # Calculate date for the last 3 days
-    end_date = datetime.now()
-    start_date = end_date - timedelta(days=3)
-    from_date = start_date.strftime("%Y-%m-%d")
-    to_date = end_date.strftime("%Y-%m-%d")
-    
-    for topic in topics:
-        try:
-            # Format the URL with query parameters
-            url = f"https://gnews.io/api/v4/search?q={topic}&lang=en&country=us&max=5&from={from_date}T00:00:00Z&to={to_date}T23:59:59Z&apikey={gnews_api_key}"
-            
-            response = requests.get(url)
-            if response.status_code == 200:
-                data = response.json()
-                
-                if "articles" in data:
-                    for article in data["articles"]:
-                        articles.append({
-                            "title": article["title"],
-                            "description": article["description"],
-                            "content": article["content"],
-                            "url": article["url"],
-                            "source": article["source"]["name"],
-                            "related_topic": topic
-                        })
-                
-            # Add delay to avoid rate limiting
-            time.sleep(1)
-                
-        except Exception as e:
-            print(f"Error fetching news for topic '{topic}': {e}")
-    
-    return articles
-
-def generate_scripts_with_llm(main_topic, articles):
-    """
-    Generate short and long scripts using an LLM based on the articles and trending topics.
-    
-    Args:
-        main_topic (str): The main topic or catchword
-        articles (list): List of news article content and metadata
-        
-    Returns:
-        dict: Dictionary containing short and long scripts
-    """
-    # Create context from articles
-    articles_context = ""
-    for i, article in enumerate(articles[:10]):  # Limit to first 10 articles to avoid token issues
-        articles_context += f"Article {i+1}:\n"
-        articles_context += f"Title: {article['title']}\n"
-        articles_context += f"Source: {article['source']}\n"
-        articles_context += f"Description: {article['description']}\n"
-        articles_context += f"Content: {article['content']}\n"
-        articles_context += f"Related to topic: {article['related_topic']}\n\n"
-
-    # Check if we have any articles to work with
-    if not articles_context:
-        return {
-            "short_script": f"No recent news found about {main_topic}.",
-            "long_script": f"We couldn't find any recent news articles about {main_topic} in the past few days."
-        }
-    
-    # Initialize Groq client
-    groq_client = Groq(api_key=os.environ["GROQ_API_KEY"])
-    
-    # Prepare prompt for short script (30-90 seconds)
-    short_script_prompt = f"""
-You are a professional script writer for short-form video content. 
-I need you to create a script about the trending topic: "{main_topic}".
-
-Here are recent news articles related to this topic:
-{articles_context}
-
-Create a SHORT SCRIPT for a 30-90 second video that:
-1. Covers the most newsworthy and exciting developments
-2. Starts with a hook to grab attention
-3. Includes 2-3 key points about the topic
-4. Ends with a clear conclusion or call to action
-5. Uses conversational language suitable for platforms like TikTok or Instagram Reels
-6. Includes [VISUAL CUE] notes for visuals where appropriate
-
-THE SCRIPT SHOULD BE 150-250 WORDS MAXIMUM.
-"""
-
-    # Prepare prompt for long script (5-12 minutes)
-    long_script_prompt = f"""
-You are a professional script writer for long-form video content.
-I need you to create a script about the trending topic: "{main_topic}".
-
-Here are recent news articles related to this topic:
-{articles_context}
-
-Create a LONG SCRIPT for a 5-12 minute video that:
-1. Provides comprehensive coverage of the topic with depth and nuance
-2. Has a clear structure: introduction, several main sections, and conclusion
-3. Includes relevant background information when needed
-4. Explores different perspectives on the topic
-5. Cites specific information from the articles
-6. Uses engaging, educational language suitable for platforms like YouTube
-7. Includes [VISUAL CUE] notes for visuals or b-roll where appropriate
-8. Includes timestamps for different sections
-
-THE SCRIPT SHOULD BE 800-1500 WORDS.
-"""
-
     try:
-        # Generate short script
-        short_response = groq_client.chat.completions.create(
-            model="llama3-70b-8192",  # Or use mixtral-8x7b-32768 or any other available model
-            messages=[
-                {"role": "system", "content": "You are a helpful scriptwriter that creates engaging video scripts based on trending topics and news."},
-                {"role": "user", "content": short_script_prompt}
-            ],
-            temperature=0.7,
-            max_tokens=1000
-        )
-        short_script = short_response.choices[0].message.content
-        
-        # Generate long script
-        long_response = groq_client.chat.completions.create(
-            model="llama3-70b-8192",  # Or use mixtral-8x7b-32768 or any other available model
-            messages=[
-                {"role": "system", "content": "You are a helpful scriptwriter that creates engaging video scripts based on trending topics and news."},
-                {"role": "user", "content": long_script_prompt}
-            ],
-            temperature=0.7,
-            max_tokens=3000
-        )
-        long_script = long_response.choices[0].message.content
-        
-        return {
-            "short_script": short_script,
-            "long_script": long_script
-        }
-        
+        response = requests.get('https://serpapi.com/search', params=params, timeout=15)
+        response.raise_for_status()
+        data = response.json()
+        return [item['link'] for item in data.get('news_results', [])[:2] if 'link' in item]
     except Exception as e:
-        print(f"Error generating scripts: {e}")
-        return {
-            "short_script": f"Error generating short script for {main_topic}: {str(e)}",
-            "long_script": f"Error generating long script for {main_topic}: {str(e)}"
-        }
+        print(f"Error fetching news links: {e}")
+        return []
 
 
-def generate_script(topic: str) -> dict:
-    """
-    Generate short and long scripts for a trending topic.
+
+
+def scrape_articles_and_save(urls):
+    text = []
     
-    Parameters:
-    topic (str): Catch word -> 2-3 word phrase which is trending.
+    for url in urls:
+        try:
+            res = requests.get(url, timeout=15, headers={"User-Agent": "Mozilla/5.0"})
+            res.raise_for_status()
+            soup = BeautifulSoup(res.text, 'html.parser')
+            paragraphs = soup.find_all('p')
+            content = " ".join(p.get_text().strip() for p in paragraphs if p.get_text().strip())
+            
+            if content is not None:
+                snippet = content[:500] 
+                #print(f"{snippet}...\n")
+                text.append(content)
+            else:
+                print(f"No content found for {url}")
 
-    Returns:
-    A dict as
-    {
-        "trending_topics": list
-        "short_script": str,
-        "long_script": str,
+        except Exception as e:
+            print(f"Error scraping {url}: {e}")
+    return text
+
+
+
+
+
+def generate_news_package(topic):
+    url = get_news_links(topic)
+    article_text = scrape_articles_and_save(url)
+    text = "".join(article_text)
+    
+    system_prompt = {
+        "role": "system",
+        "content": """You are a senior news scriptwriter creating in-depth 400-word news packages. Do not use first-person view and do not give any opinion.
+    Structure your output as follows:
+
+        1. HEADLINE (8 words, AP Style)
+        2. SUMMARY LEAD (50 words, hard news hook)
+        3. MAIN SCRIPT (300 words structured in sections):
+            a) Breaking News Facts
+            b) Background Context
+            c) Timeline of Events
+
+        4. CLOSING SUMMARY (20 words)
+        """
     }
-    """
-    # Step 1: Get related trending topics
-    trending_topics = get_related_trending_topics(topic)
-    print(f"Found trending topics: {trending_topics}")
-    
-    # Step 2: Fetch recent news articles
-    articles = fetch_news_articles(trending_topics)
-    print(f"Found {len(articles)} news articles")
-    
-    # Step 3: Generate scripts using an LLM
-    scripts = generate_scripts_with_llm(topic, articles)
-    
-    return {
-        "trending_topics": trending_topics,
-        **scripts
-    }
 
-# Example usage
-# if __name__ == "__main__":
-#     topic = "AI"
-#     scripts = generate_script(topic)
-#     print(scripts)
+    user_prompt = {
+        "role": "user",
+        "content": f"Create a professional news package about {topic} based on this information:\n\n{article_text}"
+    }
+    payload = {
+        "messages": [system_prompt, user_prompt],
+        "model": "deepseek-r1-distill-llama-70b",
+        "temperature": 0.7
+    }
+    groq_api_key = os.getenv("GROQ_API_KEY")
+    headers = {
+    "Authorization": f"Bearer {groq_api_key}",
+    "Content-Type": "application/json"
+    }
+    try:
+        response = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload)
+        if response.status_code == 200:
+            raw_content = response.json()["choices"][0]["message"]["content"]
+            
+            cleaned_content = re.sub(r"<think>.*?</think>", "", raw_content, flags=re.DOTALL)
+            news_package = cleaned_content.strip()
+            print("News package generated successfully.")
+            return news_package
+        else:
+            print(f"Error generating news package: {response.status_code} - {response.text}")
+            return ""
+    except Exception as e:
+        print(f"Error generating news package: {e}")
+        return ""
+    return text
+        
