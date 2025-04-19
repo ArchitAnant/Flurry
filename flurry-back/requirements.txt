@@ -1,6 +1,6 @@
 beautifulsoup4
-google_search_result
 serpapi
+google-genai
 groq
 protobuf
 pydub
