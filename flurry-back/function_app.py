@@ -2,13 +2,15 @@ import azure.functions as func
 import json
 import logging
 from utils.trend_builder import get_trends
-# from utils.script_synthesiser import generate_script
+from urllib.parse import unquote
+from utils.script_synthesiser import generate_script
 from utils.audio_synthesizer import synthesize_audio
 from dotenv import load_dotenv
 
 load_dotenv()
 
 app = func.FunctionApp()
+
 # world, business, technology, entertainment, sports, science 
 @app.route(route="trending", auth_level=func.AuthLevel.FUNCTION)
 def trending(req: func.HttpRequest) -> func.HttpResponse:
@@ -40,44 +42,45 @@ def trending(req: func.HttpRequest) -> func.HttpResponse:
                 headers={"Access-Control-Allow-Origin": "*"}
             )
 
-# @app.route(route="getScript", auth_level=func.AuthLevel.FUNCTION)
-# def script(req: func.HttpRequest) -> func.HttpResponse:
-#     logging.info('Python HTTP trigger for fetching scripts.')
-#     try:
-#         trend = req.params.get('trend')
-#         if not trend:
-#             return func.HttpResponse(
-#                 json.dumps({"error": "Missing 'trend' parameter"}),
-#                 status_code=400,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
-#         script = generate_script(trend)
-#         if not script:
-#             return func.HttpResponse(
-#                 json.dumps({"error": "No script found"}),
-#                 status_code=404,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
-#         return func.HttpResponse(
-#             json.dumps(script),
-#             status_code=200,
-#             mimetype="application/json",
-#             headers={"Access-Control-Allow-Origin": "*"}
-#         )
+@app.route(route="getScript", auth_level=func.AuthLevel.FUNCTION)
+def script(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Python HTTP trigger for fetching scripts.')
+    try:
+        trend = req.params.get('trend')
+        if not trend:
+            return func.HttpResponse(
+                json.dumps({"error": "Missing 'trend' parameter"}),
+                status_code=400,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+        print("topic: ",trend)
+        script = generate_script(trend)
+        if not script:
+            return func.HttpResponse(
+                json.dumps({"error": "No script found"}),
+                status_code=404,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+        return func.HttpResponse(
+            json.dumps(script),
+            status_code=200,
+            mimetype="application/json",
+            headers={"Access-Control-Allow-Origin": "*"}
+        )
     
-#     except Exception as e:
-#         return func.HttpResponse(
-#                 json.dumps({"error": f"Internal Server Error: {str(e)}"}),
-#                 status_code=500,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
+    except Exception as e:
+        return func.HttpResponse(
+                json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+                status_code=500,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
 
 @app.route(route="getAudio", auth_level=func.AuthLevel.FUNCTION)
 def getAudio(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Python HTTP trigger for fetching world trends.')
+    logging.info('Python HTTP trigger for fetching audio.')
     try:
         script = req.params.get('script')
         voice_code = req.params.get('voice')
@@ -117,6 +120,25 @@ def getAudio(req: func.HttpRequest) -> func.HttpResponse:
                 "Content-Disposition": "inline; filename=output.wav",
                 "Access-Control-Allow-Origin": "*"
             }
+        )
+    except Exception as e:
+        return func.HttpResponse(
+                json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+                status_code=500,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+    
+@app.route(route="setTrending", auth_level=func.AuthLevel.FUNCTION)
+def setTrends(req: func.HttpRequest) :
+    logging.info('Manual trigger for setting trends.')
+    try:
+        get_trends()
+        return func.HttpResponse(
+            json.dumps({"message": "Trends updated successfully"}),
+            status_code=200,
+            mimetype="application/json",
+            headers={"Access-Control-Allow-Origin": "*"}
         )
     except Exception as e:
         return func.HttpResponse(

@@ -42,15 +42,17 @@ function ScriptSection() {
           { scale: 1 },
           { scale: 0.9, duration: 0.15, yoyo: true, repeat: 1, ease: 'expo.inOut' }
         );
-        const result = await fetchScriptData();
+        const result = await fetchScriptData(trendTopic);
 
         if (result) {
-          setShortScript(result.shortScript);
-          setLongScript(result.longScript);
-          setHookWordList(result.hookTopics || []);
+          setShortScript(result.short_script);
+          setLongScript(result.long_script);
+          setHookWordList(result.hook);
+          console.log(shortScript)
+          console.log(hookWordList)
           setDurationList([
-            `${calculateDuration(result.shortScript)}`,
-            `${calculateDuration(result.longScript)}`
+            `${calculateDuration(result.short_script)}`,
+            `${calculateDuration(result.long_script)}`
           ]);
           setLoading(false);
         }

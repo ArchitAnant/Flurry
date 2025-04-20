@@ -1,45 +1,53 @@
 [
     {
         "world": [
-            "Trump Tariffs",
-            "Colossal Squid",
-            "Critical Minerals"
+            "Trump, Insurrection Act",
+            "Martial Law",
+            "COVID Lab Leak"
         ]
     },
     {
         "business": [
-            "Income tax payments"
+            "Elon Musk",
+            "IPL Debut",
+            "Stock Markets",
+            "UPI Transactions",
+            "Job Market"
         ]
     },
     {
         "technology": [
-            "Mario Kart",
-            "Nintendo Switch",
-            "Android 16",
-            "Samsung Gaming",
-            "AI Models",
-            "Pixel 9a",
-            "Security Update",
-            "Cancer Diagnosis",
-            "Fighting Collection",
-            "Noise Cancelling"
+            "Nintendo Switch 2",
+            "Cloud Gaming",
+            "AI Integration",
+            "Digital Storage"
         ]
     },
     {
-        "entertainment": []
+        "entertainment": [
+            "WWE WrestleMania 41",
+            "Akshay Kumar Movie",
+            "Haley Joel Osment",
+            "Katy Perry Wendy's"
+        ]
     },
     {
         "sports": [
-            "Paige Bueckers Draft",
-            "WNBA Draft",
-            "IPL 2025",
-            "Commanders Stadium",
-            "Transfer Windows"
+            "NFL Draft",
+            "Europa League",
+            "Champions League",
+            "NBA Playoffs",
+            "MLB Results",
+            "PSL 2025",
+            "Winnipeg Jets",
+            "Reece Walsh",
+            "Joel Dahmen"
         ]
     },
     {
         "science": [
-            "Colossal Squid"
+            "Human Evolution",
+            "Quantum Computing"
         ]
     }
 ]

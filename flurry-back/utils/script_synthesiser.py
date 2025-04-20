@@ -5,13 +5,14 @@ from bs4 import BeautifulSoup
 from serpapi import GoogleSearch
 import google.generativeai as genai
 from dotenv import load_dotenv
+import os
 load_dotenv()
 
 def get_news_links(topic):
     params = {
         "engine": "google_news",
         "q": topic,
-        "api_key": os.getenv("SERPAPI_API_KEY"),
+        "api_key": "4e25d4ad2eb1b46a491f46eadc541ad28724e87491505618bacfcabfa5c25f4e",
     }
 
     try:
@@ -67,34 +68,46 @@ def scrape_articles_and_save(urls, topic):
     
     return summary
 
-def generate_news_package(topic):
+def generate_script(topic):
     urls = get_news_links(topic)
     combined_text = scrape_articles_and_save(urls, topic)
     
     
 
-    system_prompt = """You are a senior news scriptwriter creating in-depth 600-word news packages. 
-            Structure your output with these exact section headers:
+    system_prompt = """You are a content creator scriptwriter creating in-depth catchy scripts addressing to a audience. 
+            Structure your output with these exact section headers generate two scripts long script and short script.
+            long script is about 400-500 words and short script is about 100-150 words.
+            and also generate a list of 4 related hook words to the main topic.
+            Use the following format and don't put the markers in the script: 
 
-            **HEADLINE**
+            **LONG SCRIPT**
+            [ONE LINER]
             [8 words, AP Style]
             
-            SUMMARY LEAD (50 words, hard news hook)
+            [SUMMARY LEAD (50 words, hard news hook)]
 
-                **MAIN SCRIPT**
+                [MAIN SCRIPT]
+                    [Put News Facts]
 
-                    **a) Breaking News Facts**
-                    [content]
+                    [Background Context]
 
-                    **b) Background Context**
-                    [content]
-
-                    **c) Timeline of Events**
-                    [content]
+                    [About the event(if any)]
                     
 
-            **CLOSING SUMMARY**
-                [20 words]"""
+            [CLOSING SUMMARY]
+                [20 words]
+                
+            **SHORT SCRIPT**
+            [ONE LINER]
+            [SHORT OVERVIEW]
+            [SMALL TOPIC SUMMARY]
+            [CLOSE]
+
+            **END OF SCRIPT**
+            [4 related hook words]
+            [4 words, separated by new lines]
+            [Do not put any extra text or explanation]
+            """
 
     try:
         
@@ -107,19 +120,16 @@ def generate_news_package(topic):
             match = re.search(pattern, content, re.DOTALL)
             return match.group(1).strip() if match else ""
 
-        headline = extract_section(r"\*\*HEADLINE\*\*\s*(.*?)(?=\n\s*\*\*SUMMARY|\Z)", cleaned_content)
-        summary_lead = extract_section(r"\*\*SUMMARY LEAD\*\*\s*(.*?)(?=\n\s*\*\*MAIN|\Z)", cleaned_content)
-        main_script = extract_section(r"\*\*MAIN SCRIPT\*\*\s*(.*?)(?=\n\s*\*\*CLOSING|\Z)", cleaned_content)
-        closing_summary = extract_section(r"\*\*CLOSING SUMMARY\*\*\s*(.*?)(?=\n|\Z)", cleaned_content)
-
+        long_script = extract_section(r"\*\*LONG SCRIPT\*\*\s*(.*?)(?=\n\s*\*\*SHORT SCRIPT|\Z)", cleaned_content)
+        short_script = extract_section(r"\*\*SHORT SCRIPT\*\*\s*(.*?)(?=\n\s*\*\*END OF SCRIPT|\Z)", cleaned_content)
         
         related_topics_prompt = f"Generate a list of 4 related topics to '{topic}' with each topic being 1-3 words, separated by new lines"
         related_response = model.generate_content(related_topics_prompt)
         hook_topics = [t.strip() for t in related_response.text.strip().split("\n") if t.strip()]
-
+        print(f"Related topics: {hook_topics}")
         return {
-            "short_script": f"{headline}\n\n{summary_lead}\n\n{closing_summary}".strip(),
-            "long_script": main_script.strip(),
+            "short_script": short_script,#f"{headline}\n\n{summary_lead}".strip(),
+            "long_script": long_script,#f"{main_script}\n\n{closing_summary}".strip(),
             "hook_topics": hook_topics
         }
 

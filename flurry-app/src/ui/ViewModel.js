@@ -30,33 +30,35 @@ export async function getTrendingList() {
 
 export const fetchScriptData = async (trend) => {
   try {
-    // const response = await fetch(`http://localhost:7071/api/getScript`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'x-api-key': "apiKey" 
-    //   },
-    //   body: JSON.stringify({
-    //     trend: trend
-    //   })
-    // });
+    const response = await fetch(`http://localhost:7071/api/getScript?trend=${trend}`,{
+      method: "GET",
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log("Response", data);
 
-    // if (!response.ok) {
-    //   throw new Error(`API error: ${response.status}`);
-    // }
+    // Flatten long_script if it's an array
+    const longScriptText = Array.isArray(data.long_script)
+      ? data.long_script.join(" ")
+      : data.long_script;
 
-    // const data = await response.json();
+    // Flatten short_script if it's an array
+    const shortScriptText = Array.isArray(data.short_script)
+      ? data.short_script.join(" ")
+      : data.short_script;
 
-    // // Flatten long_script if it's an array
-    // const longScriptText = Array.isArray(data.long_script)
-    //   ? data.long_script.join(" ")
-    //   : data.long_script;
-
-    return {
-      shortScript: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque neque ligula, molestie at elit id, accumsan efficitur felis. Cras vel nibh mi. Nam tincidunt eros nec justo pulvinar ultricies. Aliquam vitae tortor vitae sapien molestie facilisis vitae in augue. Integer ut mauris id elit tincidunt faucibus ut eu lorem. Proin volutpat odio eget metus luctus, efficitur gravida turpis fringilla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Quisque efficitur lacus mauris, sit amet vulputate felis rutrum non.",//data.short_script,
-      longScript: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque neque ligula, molestie at elit id, accumsan efficitur felis. Cras vel nibh mi. Nam tincidunt eros nec justo pulvinar ultricies. Aliquam vitae tortor vitae sapien molestie facilisis vitae in augue. Integer ut mauris id elit tincidunt faucibus ut eu lorem. Proin volutpat odio eget metus luctus, efficitur gravida turpis fringilla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Quisque efficitur lacus mauris, sit amet vulputate felis rutrum non. Proin commodo vehicula mauris, eget rhoncus sapien. Vestibulum quis ante massa. Curabitur posuere in magna nec mollis. Donec. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque neque ligula, molestie at elit id, accumsan efficitur felis. Cras vel nibh mi. Nam tincidunt eros nec justo pulvinar ultricies. Aliquam vitae tortor vitae sapien molestie facilisis vitae in augue. Integer ut mauris id elit tincidunt faucibus ut eu lorem. Proin volutpat odio eget metus luctus, efficitur gravida turpis fringilla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Quisque efficitur lacus mauris, sit amet vulputate felis rutrum non. Proin commodo vehicula mauris, eget rhoncus sapien.",//data.longScriptText,
-      hookTopics: ["Lorem ipsum","amet","dolor sit amet"]//data.hook_topics
+      // return the scripts and hook
+    const to_resp = {
+      long_script: data.long_script,
+      short_script: data.short_script,
+      hook: data.hook_topics,
     };
+
+    return to_resp;
 
   } catch (error) {
     console.error("Error fetching script data:", error);
