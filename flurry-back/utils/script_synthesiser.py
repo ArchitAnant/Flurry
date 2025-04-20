@@ -12,7 +12,7 @@ def get_news_links(topic):
     params = {
         "engine": "google_news",
         "q": topic,
-        "api_key": "4e25d4ad2eb1b46a491f46eadc541ad28724e87491505618bacfcabfa5c25f4e",
+        "api_key": os.environ['SERPAPI_API_KEY'],
     }
 
     try:
