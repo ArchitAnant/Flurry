@@ -1,4 +1,4 @@
 .env
 __pycache__/
-flurry-back/utils/__pycache__/
+utils/__pycache__/
 
