@@ -1,0 +1,53 @@
+[
+    {
+        "world": [
+            "Trump, Insurrection Act",
+            "Martial Law",
+            "COVID Lab Leak"
+        ]
+    },
+    {
+        "business": [
+            "Elon Musk",
+            "IPL Debut",
+            "Stock Markets",
+            "UPI Transactions",
+            "Job Market"
+        ]
+    },
+    {
+        "technology": [
+            "Nintendo Switch 2",
+            "Cloud Gaming",
+            "AI Integration",
+            "Digital Storage"
+        ]
+    },
+    {
+        "entertainment": [
+            "WWE WrestleMania 41",
+            "Akshay Kumar Movie",
+            "Haley Joel Osment",
+            "Katy Perry Wendy's"
+        ]
+    },
+    {
+        "sports": [
+            "NFL Draft",
+            "Europa League",
+            "Champions League",
+            "NBA Playoffs",
+            "MLB Results",
+            "PSL 2025",
+            "Winnipeg Jets",
+            "Reece Walsh",
+            "Joel Dahmen"
+        ]
+    },
+    {
+        "science": [
+            "Human Evolution",
+            "Quantum Computing"
+        ]
+    }
+]
