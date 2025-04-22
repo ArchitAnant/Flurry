@@ -1,11 +1,10 @@
 import os
 import time
-import math
 import tiktoken
 from pydub import AudioSegment
 from dotenv import load_dotenv
 from groq import Groq
-
+import logging
 
 load_dotenv()
 API_KEY = os.environ["GROQ_API_KEY"]
@@ -19,8 +18,7 @@ VOICE_MAP = {
     4: "Angelo-PlayAI"
 }
 
-OUTPUT_DIR = os.path.join("utils", "tmp")
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+OUTPUT_DIR = os.path.join("/tmp")
 
 
 ENCODING = tiktoken.get_encoding("cl100k_base")
@@ -44,7 +42,7 @@ def synthesize_audio(script: str, voice_code: int) -> str:
     file_paths = []
 
     for i, chunk_text in enumerate(text_chunks):
-        print(f"🎤 Synthesizing chunk {i+1}/{len(text_chunks)}...")
+        logging.info(f"Synthesizing chunk {i+1}/{len(text_chunks)}...")
         try:
             response = client.audio.speech.create(
                 model="playai-tts",
@@ -56,7 +54,7 @@ def synthesize_audio(script: str, voice_code: int) -> str:
             response.write_to_file(chunk_path)
             file_paths.append(chunk_path)
         except Exception as e:
-            print(f"❌ Error generating audio for chunk {i+1}: {e}")
+            logging.info(f"Error generating audio for chunk {i+1}: {e}")
             break
 
         time.sleep(1.5) 
@@ -65,7 +63,7 @@ def synthesize_audio(script: str, voice_code: int) -> str:
         raise RuntimeError("No audio chunks were generated.")
 
     
-    print("🔗 Merging chunks...")
+    print("Merging chunks...")
     final_audio = AudioSegment.empty()
     for file in file_paths:
         final_audio += AudioSegment.from_wav(file)
@@ -73,5 +71,5 @@ def synthesize_audio(script: str, voice_code: int) -> str:
     final_output = os.path.join(OUTPUT_DIR, "speech_final.wav")
     final_audio.export(final_output, format="wav")
 
-    print(f"✅ Speech synthesis complete: {final_output}")
+    print(f"Speech synthesis complete: {final_output}")
     return final_output

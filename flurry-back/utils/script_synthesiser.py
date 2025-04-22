@@ -1,22 +1,25 @@
-import json
 import requests
 import re
 from bs4 import BeautifulSoup
-from serpapi import GoogleSearch
 import google.generativeai as genai
 from dotenv import load_dotenv
 import os
+import logging
+
 load_dotenv()
 
 def get_news_links(topic):
     params = {
         "engine": "google_news",
         "q": topic,
-        "api_key": os.environ['SERPAPI_API_KEY'],
+        "api_key": os.environ['SEPAPI_API_KEY'],
     }
 
     try:
-        response = requests.get('https://serpapi.com/search', params=params, timeout=15)
+        headers = {
+    "User-Agent": "Mozilla/5.0",
+}
+        response = requests.get('https://serpapi.com/search', params=params, timeout=15,headers=headers)
         response.raise_for_status()
         data = response.json()
         return [item['link'] for item in data.get('news_results', [])[:4] if 'link' in item]
@@ -39,7 +42,7 @@ def scrape_articles_and_save(urls, topic):
             if content:
                 text.append(content)
         except Exception as e:
-            print(f"Error scraping {url}: {e}")
+            logging.info(f"Error scraping {url}: {e}")
     
     if not text:
         return "No content available"
@@ -64,7 +67,7 @@ def scrape_articles_and_save(urls, topic):
             response = model.generate_content(prompt)
             summary = response.text.strip()
         except Exception as e:
-            print(f"Error generating summary: {e}")
+            logging.info(f"Error generating summary: {e}")
     
     return summary
 
@@ -126,7 +129,6 @@ def generate_script(topic):
         related_topics_prompt = f"Generate a list of 4 related topics to '{topic}' with each topic being 1-3 words, separated by new lines"
         related_response = model.generate_content(related_topics_prompt)
         hook_topics = [t.strip() for t in related_response.text.strip().split("\n") if t.strip()]
-        print(f"Related topics: {hook_topics}")
         return {
             "short_script": short_script,#f"{headline}\n\n{summary_lead}".strip(),
             "long_script": long_script,#f"{main_script}\n\n{closing_summary}".strip(),
@@ -134,7 +136,7 @@ def generate_script(topic):
         }
 
     except Exception as e:
-        print(f"Error generating news package: {e}")
+        logging.info(f"Error generating news package: {e}")
         return {
             "short_script": "",
             "long_script": "",

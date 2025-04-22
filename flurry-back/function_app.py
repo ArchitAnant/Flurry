@@ -2,14 +2,16 @@ import azure.functions as func
 import json
 import logging
 from utils.trend_builder import get_trends
-from urllib.parse import unquote
 from utils.script_synthesiser import generate_script
 from utils.audio_synthesizer import synthesize_audio
 from dotenv import load_dotenv
+import datetime
 
 load_dotenv()
 
 app = func.FunctionApp()
+
+treds = []
 
 # world, business, technology, entertainment, sports, science 
 @app.route(route="trending", auth_level=func.AuthLevel.FUNCTION)
@@ -77,13 +79,21 @@ def script(req: func.HttpRequest) -> func.HttpResponse:
                 mimetype="application/json",
                 headers={"Access-Control-Allow-Origin": "*"}
             )
-
-@app.route(route="getAudio", auth_level=func.AuthLevel.FUNCTION)
+    
+@app.route(route="getAudio", methods=["POST"], auth_level=func.AuthLevel.FUNCTION)
 def getAudio(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger for fetching audio.')
     try:
-        script = req.params.get('script')
-        voice_code = req.params.get('voice')
+        body = req.get_json()
+        script = body.get('script')
+        voice_code = body.get('voice')
+
+        headers = {
+        "Access-Control-Allow-Origin": "*",  # Replace * with a specific domain if needed
+        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Headers": "Content-Type"
+    }
+
 
         if not script:
             return func.HttpResponse(
@@ -92,7 +102,7 @@ def getAudio(req: func.HttpRequest) -> func.HttpResponse:
                 mimetype="application/json",
                 headers={"Access-Control-Allow-Origin": "*"}
             )
-        if not voice_code:
+        if voice_code is None:
             return func.HttpResponse(
                 json.dumps({"error": "Missing 'voice' parameter"}),
                 status_code=400,
@@ -128,6 +138,7 @@ def getAudio(req: func.HttpRequest) -> func.HttpResponse:
                 mimetype="application/json",
                 headers={"Access-Control-Allow-Origin": "*"}
             )
+
     
 @app.route(route="setTrending", auth_level=func.AuthLevel.FUNCTION)
 def setTrends(req: func.HttpRequest) :
@@ -147,3 +158,18 @@ def setTrends(req: func.HttpRequest) :
                 mimetype="application/json",
                 headers={"Access-Control-Allow-Origin": "*"}
             )
+    
+# @app.function_name(name="trendstimer")
+# @app.timer_trigger(schedule="0 */12 * * * *",  # Every 12 hours at hh:00:00
+#                    arg_name="trendstimer",
+#                    run_on_startup=True) 
+# def set_trends(trendstimer: func.TimerRequest) -> None:
+#     utc_timestamp = datetime.datetime.now(datetime.timezone.utc).replace(
+#         tzinfo=datetime.timezone.utc).isoformat()
+#     logging.info('Setting Trends : %s', utc_timestamp)
+#     try:
+#         # get_trends()
+#         logging.info("Trends set successfully.")
+#     except Exception as e:
+#         logging.error(f"Error setting trends: {e}")
+#         raise

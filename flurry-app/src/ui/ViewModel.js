@@ -1,5 +1,7 @@
-// src/viewmodels/useTrendTopicViewModel.js
 import { create } from 'zustand';
+
+
+const AZURE_KEY = process.env.REACT_APP_FLURRY_AZURE_KEY;
 
 export const useTrendTopicViewModel = create((set) => ({
   trendTopic: '',
@@ -14,8 +16,9 @@ export const useTrendingValueList = create((set) => ({
 
 export async function getTrendingList() {
   try {
-    const response = await fetch('http://localhost:7071/api/trending');
+    const response = await fetch(`https://flurryfunction.azurewebsites.net/api/trending?code=${AZURE_KEY}`);
     const data = await response.json();
+    console.log(data)
     const parsedList = data.reduce((acc, curr) => {
       const key = Object.keys(curr)[0];
       acc[key] = curr[key];
@@ -30,7 +33,7 @@ export async function getTrendingList() {
 
 export const fetchScriptData = async (trend) => {
   try {
-    const response = await fetch(`http://localhost:7071/api/getScript?trend=${trend}`,{
+    const response = await fetch(`https://flurryfunction.azurewebsites.net/api/getScript?code=${AZURE_KEY}&trend=${trend}`,{
       method: "GET",
     });
     
@@ -74,20 +77,26 @@ export const checkAudioDownload = create((set) => ({
 }));
 
 
-export const handleDownload = async (script,voiceCode) => {
+export const handleDownload = async (script, voiceCode) => {
   try {
-    const response = await fetch(`http://localhost:7071/api/getAudio?script=${script}&voice=${voiceCode}&api_key=$`, {
-      method: "GET",
+    const response = await fetch(`https://flurryfunction.azurewebsites.net/api/getAudio?code=${AZURE_KEY}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        script: script,
+        voice: voiceCode
+      }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch audio file');
       checkAudioDownload.getState().updateDownloadState(2);
-    }
-    else{
+      throw new Error('Failed to fetch audio file');
+    } else {
       console.log("Audio file fetched successfully");
       checkAudioDownload.getState().updateDownloadState(1);
-      
+
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       checkAudioDownload.getState().updateDownloadUrl(url);
@@ -96,8 +105,10 @@ export const handleDownload = async (script,voiceCode) => {
 
   } catch (error) {
     console.error("Error downloading audio:", error);
+    checkAudioDownload.getState().updateDownloadState(2);
   }
-}
+};
+
 
 export const handleDownloadClick = () => {
   const { isDownloadable, downloadUrl } = checkAudioDownload.getState();

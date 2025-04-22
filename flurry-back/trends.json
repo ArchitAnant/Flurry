@@ -1,53 +1,31 @@
 [
     {
-        "world": [
-            "Trump, Insurrection Act",
-            "Martial Law",
-            "COVID Lab Leak"
-        ]
+        "world": []
     },
     {
         "business": [
-            "Elon Musk",
-            "IPL Debut",
-            "Stock Markets",
-            "UPI Transactions",
-            "Job Market"
+            "Rental housing",
+            "Hang Seng",
+            "Train station"
         ]
     },
     {
         "technology": [
-            "Nintendo Switch 2",
-            "Cloud Gaming",
-            "AI Integration",
-            "Digital Storage"
+            "Windows 11 24H2"
         ]
     },
     {
         "entertainment": [
-            "WWE WrestleMania 41",
-            "Akshay Kumar Movie",
-            "Haley Joel Osment",
-            "Katy Perry Wendy's"
+            "Resident Playbook"
         ]
     },
     {
         "sports": [
-            "NFL Draft",
-            "Europa League",
-            "Champions League",
-            "NBA Playoffs",
-            "MLB Results",
-            "PSL 2025",
-            "Winnipeg Jets",
-            "Reece Walsh",
-            "Joel Dahmen"
+            "NFL Draft 2025",
+            "Luis Arraez Injury"
         ]
     },
     {
-        "science": [
-            "Human Evolution",
-            "Quantum Computing"
-        ]
+        "science": []
     }
 ]
