@@ -14,8 +14,9 @@ export const useTrendingValueList = create((set) => ({
 
 export async function getTrendingList() {
   try {
-    const response = await fetch('http://localhost:7071/api/trending');
+    const response = await fetch('');
     const data = await response.json();
+    console.log(data)
     const parsedList = data.reduce((acc, curr) => {
       const key = Object.keys(curr)[0];
       acc[key] = curr[key];
@@ -30,7 +31,7 @@ export async function getTrendingList() {
 
 export const fetchScriptData = async (trend) => {
   try {
-    const response = await fetch(`http://localhost:7071/api/getScript?trend=${trend}`,{
+    const response = await fetch(``,{
       method: "GET",
     });
     
@@ -76,7 +77,7 @@ export const checkAudioDownload = create((set) => ({
 
 export const handleDownload = async (script, voiceCode) => {
   try {
-    const response = await fetch("http://localhost:7071/api/getAudio", {
+    const response = await fetch("", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

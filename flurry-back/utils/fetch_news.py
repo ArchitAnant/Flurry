@@ -2,6 +2,7 @@ import requests
 import datetime as dt
 from dotenv import load_dotenv
 import os
+import time
 
 load_dotenv()
 
@@ -9,8 +10,11 @@ def get_headlines(date,category="world"):
     news = []
     apikey = os.environ["GNEWS_API_KEY"]    
     url = f"https://gnews.io/api/v4/top-headlines?category={category}&lang=en&from={date}T00:00:00Z&to={date}T23:59:59Z&max=10&apikey={apikey}"
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+    }
+    response = requests.get(url, timeout=15,headers=headers)  
 
-    response = requests.get(url, timeout=5)  
     response.raise_for_status()
     data = response.json()
     articles = data.get("articles", [])
@@ -28,6 +32,7 @@ def get_headlines(date,category="world"):
 def get_news(cat):
     days = []
     for i in range(1, 4):
+        time.sleep(2)
         date = dt.datetime.now() - dt.timedelta(days=i)
         date = date.strftime("%Y-%m-%d")
         days.append(
@@ -35,7 +40,7 @@ def get_news(cat):
         )
 
     import json
-    with open(f"./utils/raws/{cat}_news.json", "w") as f:
+    with open(f"/tmp/{cat}_news.json", "w") as f:
         json.dump(days, f, indent=4)
 
 
