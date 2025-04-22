@@ -12,8 +12,8 @@ function ScriptSection() {
   const [durationList, setDurationList] = useState([]);
   const [shortScript, setShortScript] = useState("");
   const [longScript, setLongScript] = useState("");
+  const [isColumn, setIsColumn] = useState(false);
 
-  const buttonRef = useRef(null);
   const hookWordsRef = useRef(null);
   const durationsRef = useRef(null);
   const searchSectionRef = useRef(null);
@@ -29,6 +29,8 @@ function ScriptSection() {
 
 
       const handleClick = async () => {
+        
+        setLoading(true);
         console.log(trendTopic);
         if(trendTopic === ""){
           alert("Please enter a topic");
@@ -36,12 +38,15 @@ function ScriptSection() {
         }
         setButtonText("Regenerate")
         setShowScripts(true)
+        if (window.scrollY < 500) {
+          setTimeout(() => {
+            window.scrollTo({
+              top: window.scrollY + 300,  
+              behavior: "smooth",          
+            });
+          }, 500);
         // Animate the button (e.g. scale bump)
-        gsap.fromTo(
-          buttonRef.current,
-          { scale: 1 },
-          { scale: 0.9, duration: 0.15, yoyo: true, repeat: 1, ease: 'expo.inOut' }
-        );
+       
         const result = await fetchScriptData(trendTopic);
 
         if (result) {
@@ -63,34 +68,22 @@ function ScriptSection() {
             setLongScript("Error fetching long script");
             setLoading(false);
           }
+          setIsColumn(true)
 
         gsap.to(searchSectionRef.current, {
-          x: (-window.innerWidth/3)+50,
-          duration: 2,
-          yoyo: false,
-          ease: "expo.inOut"
-        });
-        gsap.to(buttonRef.current, {
-          x:(-window.innerWidth/4)+50,
-          y: 70,
+          x: (-window.innerWidth/3)-15,
           duration: 2,
           yoyo: false,
           ease: "expo.inOut"
         });
 
-          setTimeout(() => {
-            gsap.fromTo(hookWordsRef.current, { opacity: 0 }, { opacity: 1, duration: 1.5, ease: "expo.in" });
-            gsap.fromTo(durationsRef.current, { opacity: 0 }, { opacity: 1, duration: 1.5, ease: "expo.in" });
-            gsap.fromTo(scriptSectionRef.current, { opacity: 0 }, { opacity: 1, duration: 1.5, ease: "expo.in" });
-          }, 300);
+        setTimeout(() => {
+            gsap.fromTo(hookWordsRef.current, { opacity: 0 }, { opacity: 1, duration: 1.5, ease: "expo.in",delay: 0.5 });
+            gsap.fromTo(durationsRef.current, { opacity: 0 }, { opacity: 1, duration: 1.5, ease: "expo.in",delay: 0.7  });
+            gsap.fromTo(scriptSectionRef.current, { opacity: 0 }, { opacity: 1, duration: 1.5, ease: "expo.in"});
+        }, 200);
 
-        if (window.scrollY < 500) {
-      setTimeout(() => {
-        window.scrollTo({
-          top: window.scrollY + 300,  
-          behavior: "smooth",          
-        });
-      }, 500);  
+          
     }
       };
 
@@ -103,33 +96,35 @@ function ScriptSection() {
             </h1>
             <h1 className='text-black font-medium ms-2 text-4xl mt-8 '>done!</h1>
             </div>
-            <div ref={searchSectionRef} className='flex flex-row'>
-            <OutlinedTextField
-            value={trendTopic}
-            onChange={(e) => updateTrendTopic(e.target.value)}
-            />
-            <button 
-            ref={buttonRef}
-              onClick={handleClick}
-              className='w-[180px] h-[55px] px-4 rounded-full bg-accent '>
-                <div className='font-medium text-white flex flex-row justify-center items-center'>
-                  <h1 >{buttonText}</h1>
-                  <span class="material-symbols-outlined">
-                  <h1 className=' ps-1'>arrow_right_alt</h1>
-                  </span>
-                </div>
-              </button>
+            <div ref={searchSectionRef} className={`flex ${isColumn ? 'flex-col' : 'flex-row'} items-start`}>
+              <OutlinedTextField
+              value={trendTopic}
+              onChange={(e) => updateTrendTopic(e.target.value)}
+              />
+              <button 
+                onClick={handleClick}
+                disabled={loading}
+                className={`flex ${isColumn ? 'mt-3' : ''} ${loading ? 'opacity-30 ease-linear' : ''} items-center justify-center w-[180px] h-[55px] px-4 rounded-full bg-accent `}>
+                  <div className='font-medium text-white flex flex-row justify-center items-center'>
+                    <h1 >{buttonText}</h1>
+                    <span class="material-symbols-outlined">
+                    <h1 className=' ps-1'>arrow_right_alt</h1>
+                    </span>
+                  </div>
+                </button>
             </div>
             {showScripts && (
         <div className='w-full flex flex-row'>
           {loading ? (
-            <div className="flex justify-center items-center w-full h-[300px]">
-              <h1 className="text-accent text-lg animate-pulse">Generating your script...</h1>
+            <div className="flex flex-row justify-center items-center w-full h-[300px]">
+              <h1 className="text-accent text-lg animate-pulse">Generating your script</h1>
+              <div className="w-6 h-6 border-2 ms-2 border-t-transparent border-accent/70 rounded-full animate-spin"></div>
+
             </div>
           ) : (
             <>
               <div className='w-full flex flex-col'>
-                <div ref={hookWordsRef} className='flex flex-col justify-start text-start mt-[120px] ms-10 ps-10'>
+                <div ref={hookWordsRef} className='flex flex-col justify-start text-start mt-[80px] ms-10 ps-10'>
                   <h1 className='text-accent font-medium font-lg'>Hook Words</h1>
                   <div className="flex flex-wrap gap-2 mt-5 w-[300px]">
                     {hookWordList.length === 0 ? (

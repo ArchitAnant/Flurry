@@ -1,5 +1,4 @@
-import json
-import urllib.request
+import requests
 import datetime as dt
 from dotenv import load_dotenv
 import os
@@ -11,15 +10,17 @@ def get_headlines(date,category="world"):
     apikey = os.environ["GNEWS_API_KEY"]    
     url = f"https://gnews.io/api/v4/top-headlines?category={category}&lang=en&from={date}T00:00:00Z&to={date}T23:59:59Z&max=10&apikey={apikey}"
 
-    with urllib.request.urlopen(url) as response:
-        data = json.loads(response.read().decode("utf-8"))
-        articles = data["articles"]
-        for i in range(len(articles)):
-            curr_news = {}
-            curr_news["title"] = articles[i]["title"]
-            curr_news["description"] = articles[i]["description"]
-            curr_news["content"] = articles[i]["content"]
-            news.append(curr_news)
+    response = requests.get(url, timeout=5)  
+    response.raise_for_status()
+    data = response.json()
+    articles = data.get("articles", [])
+
+    for article in articles:
+        news.append({
+            "title": article.get("title"),
+            "description": article.get("description"),
+            "content": article.get("content"),
+        })
 
     return news
 

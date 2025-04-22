@@ -1,5 +1,4 @@
 beautifulsoup4
-serpapi
 google-genai
 groq
 protobuf
@@ -8,3 +7,4 @@ python-dotenv
 Requests
 tiktoken
 azure-functions
+Requests

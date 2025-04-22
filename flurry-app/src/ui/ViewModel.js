@@ -74,20 +74,26 @@ export const checkAudioDownload = create((set) => ({
 }));
 
 
-export const handleDownload = async (script,voiceCode) => {
+export const handleDownload = async (script, voiceCode) => {
   try {
-    const response = await fetch(`http://localhost:7071/api/getAudio?script=${script}&voice=${voiceCode}&api_key=$`, {
-      method: "GET",
+    const response = await fetch("http://localhost:7071/api/getAudio", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        script: script,
+        voice: voiceCode
+      }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch audio file');
       checkAudioDownload.getState().updateDownloadState(2);
-    }
-    else{
+      throw new Error('Failed to fetch audio file');
+    } else {
       console.log("Audio file fetched successfully");
       checkAudioDownload.getState().updateDownloadState(1);
-      
+
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       checkAudioDownload.getState().updateDownloadUrl(url);
@@ -96,8 +102,10 @@ export const handleDownload = async (script,voiceCode) => {
 
   } catch (error) {
     console.error("Error downloading audio:", error);
+    checkAudioDownload.getState().updateDownloadState(2);
   }
-}
+};
+
 
 export const handleDownloadClick = () => {
   const { isDownloadable, downloadUrl } = checkAudioDownload.getState();

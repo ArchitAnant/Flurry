@@ -1,8 +1,6 @@
-import json
 import requests
 import re
 from bs4 import BeautifulSoup
-from serpapi import GoogleSearch
 import google.generativeai as genai
 from dotenv import load_dotenv
 import os
@@ -12,11 +10,11 @@ def get_news_links(topic):
     params = {
         "engine": "google_news",
         "q": topic,
-        "api_key": os.environ['SERPAPI_API_KEY'],
+        "api_key": os.environ['SEPAPI_API_KEY'],
     }
 
     try:
-        response = requests.get('https://serpapi.com/search', params=params, timeout=15)
+        response = requests.get('https://serpapi.com/search', params=params, timeout=5)
         response.raise_for_status()
         data = response.json()
         return [item['link'] for item in data.get('news_results', [])[:4] if 'link' in item]
