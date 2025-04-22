@@ -1,5 +1,7 @@
-// src/viewmodels/useTrendTopicViewModel.js
 import { create } from 'zustand';
+
+
+const AZURE_KEY = process.env.REACT_APP_FLURRY_AZURE_KEY;
 
 export const useTrendTopicViewModel = create((set) => ({
   trendTopic: '',
@@ -14,7 +16,7 @@ export const useTrendingValueList = create((set) => ({
 
 export async function getTrendingList() {
   try {
-    const response = await fetch('');
+    const response = await fetch(`https://flurryfunction.azurewebsites.net/api/trending?code=${AZURE_KEY}`);
     const data = await response.json();
     console.log(data)
     const parsedList = data.reduce((acc, curr) => {
@@ -31,7 +33,7 @@ export async function getTrendingList() {
 
 export const fetchScriptData = async (trend) => {
   try {
-    const response = await fetch(``,{
+    const response = await fetch(`https://flurryfunction.azurewebsites.net/api/getScript?code=${AZURE_KEY}&trend=${trend}`,{
       method: "GET",
     });
     
@@ -77,7 +79,7 @@ export const checkAudioDownload = create((set) => ({
 
 export const handleDownload = async (script, voiceCode) => {
   try {
-    const response = await fetch("", {
+    const response = await fetch(`https://flurryfunction.azurewebsites.net/api/getAudio?code=${AZURE_KEY}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
