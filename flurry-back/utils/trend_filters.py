@@ -10,13 +10,13 @@ load_dotenv()
 def get_trend_values(topic):
     startDate = (dt.datetime.now() - dt.timedelta(days=1)).strftime("%d")
     endDate = (dt.datetime.now() - dt.timedelta(days=1)).strftime("%d")
-    api_key = [os.environ['SEPAPI_API_KEY'],os.environ['SEPAPI_API_KEY2']]
+    api_key = os.environ['SEPAPI_API_KEY']
     params = {
         "engine": "google_trends",
         "q": topic,
         "data_type": "TIMESERIES",
         "date": f"2025-04-{startDate}T10 2025-04-{endDate}T22",
-        "api_key": api_key[rn.randint(0,1)]
+        "api_key": api_key
     }
     value_list = [topic,0]
             
