@@ -4,6 +4,7 @@ import json
 import re
 from dotenv import load_dotenv
 import os
+import random as rn
 
 load_dotenv()
 
@@ -20,9 +21,10 @@ def parse_json(file_path):
     return "\n".join(news)
 
 def generate(file_path):
+    keys = [os.environ['GEMINI_API_KEY'],os.environ['GEMINI_API_KEY1']]
     news_data = parse_json(file_path)
     client = genai.Client(
-        api_key=os.environ['GEMINI_API_KEY'],
+        api_key=keys[rn.randint(0, 1)],
     )
 
     model = "gemini-2.0-flash"

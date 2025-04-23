@@ -3,12 +3,13 @@ import datetime as dt
 from dotenv import load_dotenv
 import os
 import time
+import random as rn
 
 load_dotenv()
-
+keys = [os.environ["GNEWS_API_KEY"],os.environ["GNEWS_API_KEY1"]]
 def get_headlines(date,category="world"):
     news = []
-    apikey = os.environ["GNEWS_API_KEY"]    
+    apikey = keys[rn.randint(0,1)] 
     url = f"https://gnews.io/api/v4/top-headlines?category={category}&lang=en&from={date}T00:00:00Z&to={date}T23:59:59Z&max=10&apikey={apikey}"
     headers = {
         "User-Agent": "Mozilla/5.0",

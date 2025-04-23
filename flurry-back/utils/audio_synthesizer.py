@@ -5,9 +5,11 @@ from pydub import AudioSegment
 from dotenv import load_dotenv
 from groq import Groq
 import logging
+import random as rn
 
 load_dotenv()
-API_KEY = os.environ["GROQ_API_KEY"]
+keys = [os.environ["GROQ_API_KEY"],os.environ["GROQ_API_KEY1"]]
+API_KEY = rn.choice(keys)
 
 
 VOICE_MAP = {

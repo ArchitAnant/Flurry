@@ -5,21 +5,19 @@ from utils.trend_builder import get_trends
 from utils.script_synthesiser import generate_script
 from utils.audio_synthesizer import synthesize_audio
 from dotenv import load_dotenv
+from utils.trends_storage import get_trend_data,set_trend_data
 import datetime
 
 load_dotenv()
 
 app = func.FunctionApp()
 
-treds = []
-
 # world, business, technology, entertainment, sports, science 
 @app.route(route="trending", auth_level=func.AuthLevel.FUNCTION)
 def trending(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger for fetching trends.')
     try:
-        with open("trends.json", "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = get_trend_data()
         
         if not data:
             return func.HttpResponse(
@@ -144,7 +142,7 @@ def getAudio(req: func.HttpRequest) -> func.HttpResponse:
 def setTrends(req: func.HttpRequest) :
     logging.info('Manual trigger for setting trends.')
     try:
-        get_trends()
+        set_trend_data(get_trends())
         return func.HttpResponse(
             json.dumps({"message": "Trends updated successfully"}),
             status_code=200,
