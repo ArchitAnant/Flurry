@@ -5,6 +5,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import os
 import logging
+import random as rn
 
 load_dotenv()
 
@@ -26,8 +27,8 @@ def get_news_links(topic):
     except Exception as e:
         print(f"Error fetching news links: {e}")
         return []
-
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+keys = [os.environ['GEMINI_API_KEY'],os.environ['GEMINI_API_KEY1']]
+genai.configure(api_key=keys[rn.randint(0,1)])
 model = genai.GenerativeModel("gemini-2.0-flash")
 
 def scrape_articles_and_save(urls, topic):

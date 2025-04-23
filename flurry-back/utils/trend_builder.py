@@ -37,8 +37,7 @@ def get_trends():
                 selected_topics.append(trend_count[0])
         trends_map.append({cat : selected_topics})
     logging.info("Writing Values...")
-    with open("trends.json", "w") as f:
-        json.dump(trends_map, f, indent=4)
+    return trends_map
 
     
 
