@@ -1,13 +1,11 @@
 from utils.fetch_news import get_news
 from utils.raw_trends import generate
 from dotenv import load_dotenv
-from utils.trend_filters import get_trend_values
-import json
 import logging
 
 load_dotenv()
 
-cat_list = ["world", "business", "technology", "entertainment", "sports", "science"]
+cat_list = ["general", "business", "technology", "entertainment", "sports", "science"]
 cat_topic_list = []
 trends_map = []
 
@@ -30,14 +28,7 @@ def get_trends():
     for i in range(len(cat_list)):
         cat = cat_list[i]
         topics = cat_topic_list[i][cat]
-        selected_topics = []
-        for topic in topics:
-            trend_count = get_trend_values(topic)
-            if trend_count[1]>5:
-                selected_topics.append(trend_count[0])
-        trends_map.append({cat : selected_topics})
+        trends_map.append({cat : topics})
     logging.info("Writing Values...")
     return trends_map
-
-    
 
