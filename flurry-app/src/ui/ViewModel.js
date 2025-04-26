@@ -18,13 +18,12 @@ export async function getTrendingList() {
   try {
     const response = await fetch(`https://flurryfunction.azurewebsites.net/api/trending?code=${AZURE_KEY}`);
     const data = await response.json();
-    console.log(data)
+    console.log("Loaded trending data");
     const parsedList = data.reduce((acc, curr) => {
       const key = Object.keys(curr)[0];
       acc[key] = curr[key];
       return acc;
     }, {});
-    console.log("Parsed List", parsedList);
     useTrendingValueList.getState().updateTrendList(parsedList);
   } catch (err) {
     console.error("Failed to fetch trending data:", err);
@@ -42,7 +41,7 @@ export const fetchScriptData = async (trend) => {
     }
     
     const data = await response.json();
-    console.log("Response", data);
+    console.log("Response for script data fetched successfully");
 
     // Flatten long_script if it's an array
     const longScriptText = Array.isArray(data.long_script)
