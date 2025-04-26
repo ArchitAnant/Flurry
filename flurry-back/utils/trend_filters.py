@@ -29,6 +29,7 @@ def get_trend_values(topic):
         count = 0
         for i in range(len(timeline_data)):
             value = timeline_data[i]['values'][0]['extracted_value']
+            print(topic)
             if value > 45:
                 count+=1
 

@@ -33,7 +33,7 @@ def generate(file_path):
             role="user",
             parts=[
                 types.Part.from_text(text=f"""{news_data}
-parse this data and find 10 of the most trending phrase topics and tell me in 2-3 words return strict json format as list of topics"""),
+parse this data and find 3 to 7 of the most trending phrase topics and tell me in 2-3 words return strict json format as list of topics make sure the MOST TRENDING/MOST RECURRING topics are at the top of the list and the least trending topics are at the bottom of the list."""),
             ],
         ),
     ]
@@ -56,7 +56,7 @@ parse this data and find 10 of the most trending phrase topics and tell me in 2-
     
     raw_text = resp[0].strip()
     cleaned_text = re.sub(r"^```json|```$", "", raw_text).strip()
-
+    print(cleaned_text)
     json_data = json.loads(cleaned_text)
     topics = []
 

@@ -12,7 +12,6 @@ load_dotenv()
 
 app = func.FunctionApp()
 
-# world, business, technology, entertainment, sports, science 
 @app.route(route="trending", auth_level=func.AuthLevel.FUNCTION)
 def trending(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger for fetching trends.')
@@ -157,17 +156,17 @@ def setTrends(req: func.HttpRequest) :
                 headers={"Access-Control-Allow-Origin": "*"}
             )
     
-# @app.function_name(name="trendstimer")
-# @app.timer_trigger(schedule="0 */12 * * * *",  # Every 12 hours at hh:00:00
-#                    arg_name="trendstimer",
-#                    run_on_startup=True) 
-# def set_trends(trendstimer: func.TimerRequest) -> None:
-#     utc_timestamp = datetime.datetime.now(datetime.timezone.utc).replace(
-#         tzinfo=datetime.timezone.utc).isoformat()
-#     logging.info('Setting Trends : %s', utc_timestamp)
-#     try:
-#         # get_trends()
-#         logging.info("Trends set successfully.")
-#     except Exception as e:
-#         logging.error(f"Error setting trends: {e}")
-#         raise
+@app.function_name(name="trendstimer")
+@app.timer_trigger(schedule="0 0 */12 * * *",  
+                   arg_name="trendstimer",
+                   run_on_startup=True) 
+def set_trends(trendstimer: func.TimerRequest) -> None:
+    utc_timestamp = datetime.datetime.now(datetime.timezone.utc).replace(
+        tzinfo=datetime.timezone.utc).isoformat()
+    logging.info('Setting Trends : %s', utc_timestamp)
+    try:
+        get_trends()
+        logging.info("Trends set successfully.")
+    except Exception as e:
+        logging.error(f"Error setting trends: {e}")
+        raise
