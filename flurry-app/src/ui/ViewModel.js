@@ -15,6 +15,7 @@ export const useTrendingValueList = create((set) => ({
 
 
 export async function getTrendingList() {
+  // https://flurryfunction.azurewebsites.net/api/trending?code=${AZURE_KEY}`
   try {
     const response = await fetch(`https://flurryfunction.azurewebsites.net/api/trending?code=${AZURE_KEY}`);
     const data = await response.json();
@@ -30,16 +31,37 @@ export async function getTrendingList() {
   }
 }
 
+function isValidImageUrl(text) {
+  return (text.startsWith('https://')||text.startsWith('http://')) && 
+    (text.endsWith('.jpeg') || text.endsWith('.jpg') || text.endsWith('.png'));
+}
+
 export const fetchScriptData = async (trend) => {
   try {
-    const response = await fetch(`https://flurryfunction.azurewebsites.net/api/getScript?code=${AZURE_KEY}&trend=${trend}`,{
-      method: "GET",
-    });
-    
+    let response;
+    if (isValidImageUrl(trend)) {
+       console.log("Image URL detected");
+      response = await fetch(`https://flurryfunction.azurewebsites.net/api/getimageresult?code=${AZURE_KEY}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: trend,
+        }),
+      });
+    } else {
+      console.log("Text Call detected");
+      response = await fetch(`https://flurryfunction.azurewebsites.net/api/getscript?trend=${trend}&code=${AZURE_KEY}`, {
+        method: "GET",
+      });
+    }
+
+
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
     }
-    
+
     const data = await response.json();
     console.log("Response for script data fetched successfully");
 
@@ -53,19 +75,29 @@ export const fetchScriptData = async (trend) => {
       ? data.short_script.join(" ")
       : data.short_script;
 
-      // return the scripts and hook
+    // Prepare response
     const to_resp = {
-      long_script: data.long_script,
-      short_script: data.short_script,
+      long_script: longScriptText,
+      short_script: shortScriptText,
       hook: data.hook_topics,
     };
 
+    // If image analysis data exists
+    if (data.famous_people) {
+      to_resp.img_url = trend;
+      console.log(data.famous_people)
+      to_resp.famous_people = data.famous_people;
+      to_resp.famous_places = data.famous_places;
+      to_resp.text_in_image = data.text_in_image;
+    }
+
     return to_resp;
 
-  } catch (error) {
-    console.error("Error fetching script data:", error);
-    return null;
-  }
+    } catch (error) {
+        console.error("Error fetching script data:", error);
+        return null;
+    }
+
 };
 
 export const checkAudioDownload = create((set) => ({
@@ -78,6 +110,7 @@ export const checkAudioDownload = create((set) => ({
 
 export const handleDownload = async (script, voiceCode) => {
   try {
+    console.log(voiceCode)
     const response = await fetch(`https://flurryfunction.azurewebsites.net/api/getAudio?code=${AZURE_KEY}`, {
       method: "POST",
       headers: {

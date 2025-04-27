@@ -8,6 +8,9 @@ function ScriptSection() {
   const [showScripts, setShowScripts] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [famousPeople, setFamousPeople] = useState(null);
+  const [famousPlaces, setFamousPlaces] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
   const [hookWordList, setHookWordList] = useState([]);
   const [durationList, setDurationList] = useState([]);
   const [shortScript, setShortScript] = useState("");
@@ -28,12 +31,12 @@ function ScriptSection() {
   };
 
 
-      const handleClick = async () => {
-        
+  const handleClick = async () => {
         setLoading(true);
         console.log(trendTopic);
         if(trendTopic === ""){
           alert("Please enter a topic");
+          setLoading(false);
           return;
         }
         setButtonText("Regenerate")
@@ -44,7 +47,7 @@ function ScriptSection() {
               top: window.scrollY + 300,  
               behavior: "smooth",          
             });
-          }, 500);
+          }, 500);}
         // Animate the button (e.g. scale bump)
        
         const result = await fetchScriptData(trendTopic);
@@ -53,21 +56,30 @@ function ScriptSection() {
           setShortScript(result.short_script);
           setLongScript(result.long_script);
           setHookWordList(result.hook);
-          console.log(shortScript)
-          console.log(hookWordList)
           setDurationList([
             `${calculateDuration(result.short_script)}`,
             `${calculateDuration(result.long_script)}`
           ]);
+          if(result.famous_people){
+            setFamousPeople(result.famous_people);
+            setFamousPlaces(result.famous_places);
+            setImageUrl(trendTopic);
+          }
+          else{
+            setFamousPeople(null);
+            setFamousPlaces(null);
+            setImageUrl(null);
+          }
           setLoading(false);
         }
           else {
             setHookWordList([]);
             setDurationList([]);
-            setShortScript("Error fetching short script");
-            setLongScript("Error fetching long script");
+            setShortScript("");
+            setLongScript("");
             setLoading(false);
           }
+        // setLoading(false);
           setIsColumn(true)
 
         gsap.to(searchSectionRef.current, {
@@ -82,10 +94,7 @@ function ScriptSection() {
             gsap.fromTo(durationsRef.current, { opacity: 0 }, { opacity: 1, duration: 1.5, ease: "expo.in",delay: 0.7  });
             gsap.fromTo(scriptSectionRef.current, { opacity: 0 }, { opacity: 1, duration: 1.5, ease: "expo.in"});
         }, 200);
-
-          
-    }
-      };
+    };
 
     return (
         <div className='flex flex-col min-w-screen justify-center items-center'>
@@ -96,7 +105,8 @@ function ScriptSection() {
             </h1>
             <h1 className='text-black font-medium ms-2 text-4xl mt-8 '>done!</h1>
             </div>
-            <div ref={searchSectionRef} className={`flex ${isColumn ? 'flex-col' : 'flex-row'} items-start`}>
+            <div ref={searchSectionRef} className={`flex ${isColumn ? 'flex-col' : 'flex-row justify-center items-center'} items-start`}>
+              
               <OutlinedTextField
               value={trendTopic}
               onChange={(e) => updateTrendTopic(e.target.value)}
@@ -151,11 +161,55 @@ function ScriptSection() {
                   </div>
                 </div>
               </div>
-
               <div ref={scriptSectionRef} className='flex flex-col opacity-0 w-full pe-10 me-10'>
+                {famousPeople &&
+                <div className='flex flex-row translate-y-[-40px]'>
+                <img 
+                  src={imageUrl} 
+                  className="w-[300px] object-contain rounded-2xl bg-lightGray bg-opacity-15 me-4"
+                />
+                <div className='flex flex-col justify-start text-start ms-2'>
+                  <h1 className='text-accent font-semibold text-xl'>About the Image:</h1>
+                  <div className="flex flex-col gap-2 mt-5 w-[300px]">
+                  <h1 className='text-accent font-medium font-lg'>Famous People</h1>
+                      <div className="flex flex-wrap gap-2 w-[300px]">
+                        {famousPeople.length === 0 ? (
+                          <p className="text-gray-500 text-sm italic">No famous people available.</p>
+                        ) : (
+                        famousPeople.map((person, idx) => (
+                          <h1 key={idx} className='text-[10px] bg-accent bg-opacity-60 py-1 px-2 text-white rounded-full'>{person}</h1>
+                        ))
+                      )}
+                      </div>
+
+                        <h1 className='text-accent font-medium font-lg'>Famous Places</h1>
+                      <div className="flex flex-wrap gap-2 w-[300px]">
+                      {famousPlaces.length === 0 ? (
+                          <p className="text-gray-500 text-sm italic">No famous people available.</p>
+                        ) : (
+                        famousPlaces.map((place, idx) => (
+                          <h1 key={idx} className='text-[10px] bg-accent bg-opacity-60 py-1 px-2 text-white rounded-full'>{place}</h1>
+                        )))}
+                      </div>
+                    
+                  </div>
+                </div>
+                </div>
+                }
+                {shortScript.length > 0 ? (
+                  <>
+                <div className='h-10'></div>
                 <Script title={"Short Script"} script={shortScript} />
                 <div className='h-10'></div>
                 <Script title={"Long Script"} script={longScript} />
+                </>
+                ):(
+                  <div className='flex flex-col justify-center items-center w-full h-[300px]'>
+                    <h1 className="text-lightGray text-lg ">Could Generate Script. Try using a different topic!</h1>
+                    <h1 className="text-lightGray text-sm ">If you are using a image. Try using images with good visual cues.</h1>
+                  </div>
+                )}
+              
               </div>
             </>
           )}
