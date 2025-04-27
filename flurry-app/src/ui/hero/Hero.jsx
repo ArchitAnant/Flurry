@@ -26,6 +26,16 @@ function HeroSection() {
           <h1 className='text-black font-black mt-2 pb-4 w-[140px]  text-5xl bg-no-repeat bg-[url(ui/hero/svgs/hero-idea-high.svg)] bg-contain'>IDEA.</h1>
         </div>
       </div>
+      <div className="flex w-full h-[300px] overflow-hidden justify-center items-center translate-y-[-20px]">
+          <video
+            src="/Test.mp4"
+            muted
+            autoPlay
+            loop
+            className="w-1/2 h-[200px] object-cover"
+          >
+          </video>
+      </div>
     </div>
   );
 }

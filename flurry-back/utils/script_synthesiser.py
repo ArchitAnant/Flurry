@@ -4,26 +4,23 @@ from bs4 import BeautifulSoup
 import google.generativeai as genai
 from dotenv import load_dotenv
 import os
+import random as rn
 import logging
 import random as rn
 
 load_dotenv()
-
+keys = [os.environ["NEWS_API_KEY"],os.environ["NEWS_API_KEY1"]]
 def get_news_links(topic):
-    params = {
-        "engine": "google_news",
-        "q": topic,
-        "api_key": os.environ['SEPAPI_API_KEY'],
-    }
-
     try:
+        key = rn.choice(keys)
+        url = f"https://newsapi.org/v2/everything?q={topic}&sortBy=popularity&apiKey={key}"
         headers = {
-    "User-Agent": "Mozilla/5.0",
-}
-        response = requests.get('https://serpapi.com/search', params=params, timeout=15,headers=headers)
+            "User-Agent": "Mozilla/5.0",
+        }
+        response = requests.get(url,headers=headers)  
         response.raise_for_status()
         data = response.json()
-        return [item['link'] for item in data.get('news_results', [])[:4] if 'link' in item]
+        return [item['url'] for item in data.get('articles', [])[:min(4,len(data['articles']))] if 'url' in item]
     except Exception as e:
         print(f"Error fetching news links: {e}")
         return []
@@ -35,7 +32,7 @@ def scrape_articles_and_save(urls, topic):
     text = []
     for url in urls:
         try:
-            res = requests.get(url, timeout=15, headers={"User-Agent": "Mozilla/5.0"})
+            res = requests.get(url, timeout=5, headers={"User-Agent": "Mozilla/5.0"})
             res.raise_for_status()
             soup = BeautifulSoup(res.text, 'html.parser')
             paragraphs = soup.find_all('p')
@@ -75,9 +72,6 @@ def scrape_articles_and_save(urls, topic):
 def generate_script(topic):
     urls = get_news_links(topic)
     combined_text = scrape_articles_and_save(urls, topic)
-    
-    
-
     system_prompt = """You are a content creator scriptwriter creating in-depth catchy scripts addressing to a audience. 
             Structure your output with these exact section headers generate two scripts long script and short script.
             long script is about 400-500 words and short script is about 100-150 words.
@@ -143,4 +137,3 @@ def generate_script(topic):
             "long_script": "",
             "hook_topics": []
         }
-
